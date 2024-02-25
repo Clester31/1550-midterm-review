@@ -238,4 +238,34 @@
 
 # Slide Set 2 (Scheduling Part 1)
 
-##
+## Scheduling
+
+### CPU Time
+
+* The first resource we are looking to manage is the time spent running insturctions on the CPU on behalf of a running program
+* A running program and its associated data is called a **process**
+* A program is the code and (static) data typically stored in an executable file on disk
+  * The VN architecture prevents us from running it until it has been copied into RAM
+  * You have to decide when it has to get in RAM, and then start running instructions
+
+### Multiprogramming
+
+* **Multiprogramming (AKA Multiprocessing/multitasking) is the ability to run multiple processes at the same time
+* The problem is easy if we have N processes and N processors (CPUs)
+  * Just pick a process and assign it to a processor
+* Pigeonhole principle says if we have more processes than processors, we must assign two or more processes to the same CPU
+
+### Virtulization: Time Slicing (Pseudoparallelism)
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/900d39ae-aae7-472f-b4af-c346be0da8b8)
+
+* If we slice the CPU's time into tiny pieces, no single piece will allow the process to completely do it's work
+* If we have 100 processes and one processor, how do we choose which process to run?
+  * This is the role of the scheduler
+  * We must have a list of all the processes and at each node of the linked list, there is some sort of variable that keeps track of what state the processor is in (created, ready, running, blocked, exited)
+  * We then pick which of the ready processes we will run next
+* Once the program terminates, we need some sort of event that switched from the running program into the OS
+  * exit() system call does just that - It's a signal to the OS that it needs to switch to a different process
+  * exit() has no return. It's an event that allows the OS to take control of the CPU
+* If we just run our process sequentially instead of running multiple at the same time, we don't have a multiprogramming system
+  * This is a **batch system**. We start a process then run it to executions     
