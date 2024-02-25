@@ -298,3 +298,6 @@
 * The messages that the CPU must handler are delieverd as **hardware interrupts**, which behave as much as software ones do
 * The CPU is only hearing what it want's, not actively looking for it
 
+## Threading
+
+### 
