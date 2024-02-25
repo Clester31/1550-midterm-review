@@ -267,5 +267,34 @@
 * Once the program terminates, we need some sort of event that switched from the running program into the OS
   * exit() system call does just that - It's a signal to the OS that it needs to switch to a different process
   * exit() has no return. It's an event that allows the OS to take control of the CPU
-* If we just run our process sequentially instead of running multiple at the same time, we don't have a multiprogramming system
-  * This is a **batch system**. We start a process then run it to executions     
+* If we just run our process sequentially instead of (the illusion of) running multiple at the same time, we don't have a multiprogramming system
+  * This is a **batch system**. We start a process then run it to completion
+ 
+### Managing multiple processes at once (Juggling)
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/762d55a4-15f3-41fc-ab2e-1d5e51da4992)
+
+* In the batch system, we only have one process going at a time. When we're finished with it, we go to the next process
+  * What we need to di is switch between them and realize that most of the time spent is not running one specific process
+    * This means that there is time that we are able to do other work while that process is not running
+* We must wait until we get I/O data because we cannot run instructions on dat that is not present in RAM (VN)
+* read() is an example of a **blocking system call**
+  * when we block, we are essentially waiting for input
+  * We can only exit a blocked state once the hardware interrupt inditicates we have an I/O completion
+  * When the data transfer is complete, then the state must go from blocked to ready
+* **Scheduling is choosing among ready processes**
+  * When the process gets its data, we can unblock and continue the process
+  * We get that through a hardware interrupt which tells us to change the processors state
+* What happens while we are waiting for our data to arrive?
+  * Run another porces that is ready in the meantime
+  * This illustrates the juggling example
+
+#### I/O via interrupts (The Bus)
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/80e6c9fd-9e4e-4e5b-895a-61d1c2850eb9)
+
+* Hardware exchanges information over a shared newtorks communication known as the **bus**
+* Each device listens for addresses/commands. It is then responsible for handilng and doing the request
+* The messages that the CPU must handler are delieverd as **hardware interrupts**, which behave as much as software ones do
+* The CPU is only hearing what it want's, not actively looking for it
+
