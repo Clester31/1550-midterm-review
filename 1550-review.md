@@ -73,13 +73,23 @@
   * $v0 does not hold an address because then we could run any address we want in privileged mode
     * Instead every syscall is given an ordinal
     * $v0 is the index into a table of syscalls
+* Why not just use the address instead of an ordinal?
+  1. We don't want the user to know the location of the kernel mode isntructions
+  2. Syscall address might change, you can't change it in your own code every time
+  3. The program can't see it because it's not in the program's address space  
    
 ##### Interrupt Vector
 
 * **Every event that requires the OS to run code is an interrupt**
 * When an interrupt occurs, we want to stop the program and set the address in the OS to run the correct code
 * When we call on the interrupt vector: we do it as so:
-  ```Interrupt Vector[Interrupt Type]``` 
+  ```Interrupt Vector[Interrupt Type]```
+* Every system call will go to the same address (usually index 0)
+  * This goes to another table called the syscall table, which is indexed by $v0
+* Interrupt vector is a hardware table. It is in the state of the CPU
+* The sycall table is RAM based and can be modified
+* Why have two tables?
+  * Hardware space is small - this means the interrupt table can be small and the syscall table can be big     
 
 ##### Protection Modes
 
@@ -96,16 +106,13 @@
 * If we try to execute a privleged mode instruction in protected mode, it will not work
   * However, if we try to execute a user mode instruction in privleged mode, it will work just fine
  
-* How can we determine wheteer or not we can use privleged mode instructions?
+* How can we determine wheteher or not we can use privleged mode instructions?
   * there is one bit in the OS that tells us whether we can have access or not - the **Mode Bit**
     * stored in a register
   * Our process will look at the opcode. If it sees that its a privileged mode instruction, we check the mode bit and see if the mode we are in allows us to run that insturction
 * What happens when we try to fetch privileged mode instructions in user mode?
   * We end up fetching from an invalid address that isn' ours - the processor will raise an **exception**
     * SIGSEGV
-   
-##### The Interrupt Vector
-
  
 #### Process of a system call
 
@@ -137,3 +144,51 @@
 * The OS is overhead: any resource taken by the OS cannot be used by what we really want our system to run
 
 #### Context Switch
+
+* General Idea: Put things back when the OS is done with whatever it's doing
+  * Then we must save the information to the stack to save it between funciton calls 
+* The instructions of the OS use the same hardware resources (general purpose registers, for example) as the instructions of the user program we interrupted
+* We have to put things back the way they were when we return from the OS
+* This save/restore of shared resources is known as a **context switch**
+* On entry to the OS, save all shared state and restore OS state. On return from OS, do the inverse.
+  * Context switches are overhead, because the OS is taking time away from the applications
+  *  
+* Where is it safe to store these values?
+  * The registers are saved in memory. We use registers because they are on the processor and are close to the ALU and actual work 
+* Our measure of time: Reduce the number of context switches to improve system performance
+
+## Monolithic Kernel vs Microkernel (Exokernel)
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/54172c16-7905-4bcd-bace-3bf3a4b2c602)
+
+### Monolithic Kernel
+
+* Mono = One, Lithose = Rock -> One big rock
+* All three tasks (main procedure, service routines, Utility routines) are found in the kernel
+  * We have a linked list insert for our tasks, a scheduling algorithm, and setting up the processor state
+* Every part of a task lives within the kernel's address space
+* Work must be loaded into RAM as wella s the data we are working with (Satisfied VN architecture)
+* All of the work in the monolithic kernel must be bundled into the OS
+
+### Microkernel / Exokernel
+
+* Simply: Have the OS do less/not do some things the monolithic kernel would do
+* All unprivleged work is pushed into user-space
+  * Large portions of kernel code have nothing to do with the privilege instructions
+  * Scheduling code is also moved into the processor 
+* Work will usually be more expensive due to more context switches
+
+### Why use one over the other?
+
+#### 1. Performance Overhead (context switches as a unit of time)
+
+* Monolithic kernel has 2 context switches per schedule
+* Microkernel/Exokernel has 4 context switches per schedule
+  * This means the microkernel is slower than the monolothic kernel
+ 
+#### 2. Application/Build Safety
+
+* In a monolithic kernel, to change the code in the OS, we must recompile the entire thing after changes are made (remember project 2?)
+* In the microkenrel however, the modules exist in seperate process in the address space
+  * So we can edit, compile, and swap modules without having to reboot 
+
