@@ -63,6 +63,23 @@
 * A syscall is a **software interrupt**
   * We stop what we are currently doing, but we intent to go back later
   * This makes the OS **event-driven**, as it is not constantly running, but is responding to events, then getting out of the way
+* Syscalls are not a j-type instruction (jump)
+  * We are not giving it an address to jump to
+* It's not an i-type instruction either
+  * No loads/stores
+* It's an r-type instruction (register based)
+* How does a program/cmpiler know what system call we want to run?
+  * get the value of $v0
+  * $v0 does not hold an address because then we could run any address we want in privileged mode
+    * Instead every syscall is given an ordinal
+    * $v0 is the index into a table of syscalls
+   
+##### Interrupt Vector
+
+* **Every event that requires the OS to run code is an interrupt**
+* When an interrupt occurs, we want to stop the program and set the address in the OS to run the correct code
+* When we call on the interrupt vector: we do it as so:
+  ```Interrupt Vector[Interrupt Type]``` 
 
 ##### Protection Modes
 
@@ -85,7 +102,10 @@
   * Our process will look at the opcode. If it sees that its a privileged mode instruction, we check the mode bit and see if the mode we are in allows us to run that insturction
 * What happens when we try to fetch privileged mode instructions in user mode?
   * We end up fetching from an invalid address that isn' ours - the processor will raise an **exception**
-    * SIGSEGV 
+    * SIGSEGV
+   
+##### The Interrupt Vector
+
  
 #### Process of a system call
 
@@ -98,3 +118,22 @@
 5. Save outgoing process state (context switch)
 6. Use sysacll number to lookup adress in **syscall table**, run syscall code
 7. Return from interrupt
+
+### Event-Driven
+
+* The OS is not actively running all the time. Syscalls are just a type of event (there are more events than syscalls)
+* The OS will respond to interrupts, and then get out of the way
+
+### It is the program that runs first on the computer
+
+* The CPU will start in privileged mode, allowing the code to set up the inital addresses of the interrupt handlers in the interrupt vector
+* How do we make suer the OS runs first when we start up the computer?
+  * The master boot record is the information in the first sector of a hard disk or removable device
+    * it tells us how and where the system's operating system is located in order to be booted into the computer's main storage or RAM
+    * Usually a menu of operating systems on a boot loader
+   
+### Overhead
+
+* The OS is overhead: any resource taken by the OS cannot be used by what we really want our system to run
+
+#### Context Switch
