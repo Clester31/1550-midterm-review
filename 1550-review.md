@@ -1,4 +1,4 @@
-#1550 review
+# Slide set 1 (Introduction to Operating Systems)
 
 ## An OS is a piece of software that...
 
@@ -190,5 +190,52 @@
 
 * In a monolithic kernel, to change the code in the OS, we must recompile the entire thing after changes are made (remember project 2?)
 * In the microkenrel however, the modules exist in seperate process in the address space
-  * So we can edit, compile, and swap modules without having to reboot 
+  * So we can edit, compile, and swap modules without having to reboot
 
+#### 3. Safety/Bugs
+
+* Microkernels have less bugs. Why?
+  * Less code than in a monolithic kernel
+  * **Attack Surface** - The more code you have, the harder it is to get right (more rprone to vulenerabilities)
+    * NOTE: the kernel is one program, the OS is the kernel + auxiliary software (Linux = kernel, GNU = other stuff)
+
+#### 4. Crashes
+
+* If one module crashes in the monolothic kernel, the entier OS crashes
+* In a microkernel, the OS will not crash. The user-process server crashes and can be replaced
+
+#### Overall
+
+* Monolithic kernel has better performance due to less context switches
+* Microkernel takes longer because of its modularity, but has a small and well defined interface
+   * Also one that can be replaced more easily
+* Linux is monolithic, Windows is hybrid micro/monolithic kernel
+
+## Virtual Machines  
+
+* A VM is a program that helps you run another program
+* QEMU is a piece of software that can be treated as a seperate system
+  * Can run a system on top of it, which is a guest operating system
+* QEMU is pretending to be a seperate process since its ARM. x86 is not ARM  
+
+### Application Level
+
+* focus on executing individual programs by decoupling them from the underlying operating system
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/26d99418-927f-4418-9e8f-747c6fd97784)
+
+### Process Level
+
+* A virtual platform created for an individual process and destroyed once the process terminates
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/65773fba-3a74-4dbc-9389-157113464236)
+
+### Hypervisor/VMM
+
+* Can see the hardware and allocate it to different systems
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/feb17506-ed5f-40a0-9136-e7b1e4db7a76)
+
+# Slide Set 2 (Scheduling Part 1)
+
+##
