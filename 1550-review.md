@@ -300,4 +300,161 @@
 
 ## Threading
 
-### 
+* A **thread** is a stream of instructions and it's associated state
+* Every process has a thread but some processes can have more than one
+  * Every process we run has a thread stream
+* Imagine we have 3 threads within one process
+  * 3 streams of instructions with independent progress
+  * The registers are not the same between the three threads, but they have one address space
+    * $PC points to different areas on each thread
+* If we have a variable in RAM, threads that are part of the same process can access that data if they are part of one process
+* Multi-threading is an ease of communication between threads. They can read and write shared address space locations
+* Threads are a lightweight process
+  * This is because the amount of associated states that we have to go to from thread to thread are smaller, so its cheaper work
+ 
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/9805d685-0217-4e5e-ac1a-5a208e93ca9d)
+
+#### How can processes communicate?
+
+* A process can communicate via files
+* A pipe is just a file that acts like a queue: we create a network between two processes
+  * All of these methods involve the OS. The OS can say no and end communication between dependent processes which is not good
+* The OS is not involved with the communication between threads and address space
+  * It can't be stopped or managed via the OS
+ 
+#### Benefits of Threading and Parallelism
+
+* More efficient: Sharing of the same address space
+* Performance: the cooperation in the case of a word processor
+  * Do not have to open and write files relying on the OS
+* If the CPU notices something wrong during running, it sends an interrupt, and the OS terminates the process via a kill signal
+  * Signals are messages which are asynchronous that are sent to the process
+  * This means something like a webserver could crash completely if one thread goes down
+    * If they are each their own process however, if one goes down, the rest stay up    
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/48899ef9-4e8c-450c-b931-7ce856f948e8)
+
+### Cooperative vs Competitive
+
+* Threads are cooperative, since they are able to share information between them within a single process
+* Processes are competitive since they are unrelated and are competing for the CPU's time
+* Assume that multi-threaded process' threads are cooperative
+  * Now assume that every thread has to have a seperate stack.
+    * Can we have three stacks that have arbitrary size and one heap?
+      * No. they will grow into eachother leading to stack space running out quickly   
+* We cannot trust programs to vonluntariy yield, exit, or block soon enough to allow for the illusion of simultaneous action
+* Consider the infinite loop program
+  * ``` HERE: J HERE```
+    * This program makes no events (interrupts) by which the OS can regain control
+* We need an event that is not software-originated that we can use to have the OS regain control and make scheduling decisions
+  * The only thing on the system that is not SW is hardware
+  * Add a hardware timer component to do **preemption**
+* Why pick one implementation strategy over the other?
+  * There is no sharing -> default to processes unless there is explicit sharing
+  * Performance -> use threads
+ 
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/4c2d8561-c48e-450a-b822-65b45e259bb3)
+ 
+#### Parallelism in a web server
+
+* The WWW is a client-server architecture where the client (a browser) makes requests of a server via HTTP
+* HTTP is stateless - The webserver for each reuqest has no memory of the other requests, even from the same client
+  * This is why cookies and session ids exist
+  * No need for sharing/communication
+* It seems that a webserver is parallel then - all client work can be done at the same time
+  * Then we could choose the fastest threads over processes for speed. Or the isolated processes for security
+
+### User Threads vs Kernel Threads
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/19ccc626-a652-4356-b43a-e024410db286)
+
+* **User Threads**
+  * User-space library responsible for providing threading support
+    * Threading operations are library (function) calls
+    * The OS holds the process state
+  * Greedy threads (for CPU time) may starve out other threads in the same process
+  * A thread doing blocking IO amy make the entire process block
+ 
+* **Kernel Threads**
+  * OS provides support for threads natively
+    * Threading operations are done via system calls (pthread_create())
+  * The OS manages threads as it does processes, with preemption and scheduling
+ 
+#### pthread_create()
+
+* **User Threading**
+  * On call we do a JAL into library code
+  * We add another thread in the data structure that has the number of threads
+  * It's library code that changes a library data structure inside of the user space
+
+* **Kernel Threading**
+  * Has to make a syscall to go into the kernel to change the thread state table (Changes a kernel data structure)
+  * There are more context switches in a kernel threaded OS
+ 
+#### Infinite Loop Problem
+
+* In the case of an infinite loop, the preemption timer will go off and we enter into the OS becauese of a timer interrupt
+  * Call the scheduler afterwards
+* User threaded OS:
+  * When we got the interrupt timer, we saved all the state and the $PC
+  * Then we put the $PC right back where we got the interrupt
+    * We're going to pick up right where we left off... in the infinite loop
+  * There is no-user space preemption timer. This denies the other two threads CPU time
+    * Starvation
+* If we have a thread stuck in the running state and we want it to go into the ready state, what do we do?
+  * Yield: The process will willingly yield its time
+    * Terrible for processes, since they are competitive and want the CPU time
+    * Since user threads are within the same process however, there is no competition
+* It could be the programmer's problem
+  * The purpose of the OS is to protect processes from other processes being greedy. Not from threads being greedy
+  * If a thread is greedy, then we must code it to yield
+    * yield() wil call into the library and calls the scheduler to pick another process
+* In kernel threading, yielding is uneccesary and will cause context switches.
+  * Threading library will do nothing if it finds a yield
+  * Kernel threading has the preemption timer anyways, why yield in the first place?
+ 
+##### In summary:
+
+* In kernel threading: if a program runs for a long time:
+  * Preemption timer goes off
+  * We go into the kernel
+  * We call the scheduler and it can pick up threads of processes
+ 
+* In user threading: if a program runs for a long time
+  * Preemption timer will still go off
+  * If a process' thread is blocked, then the entire process will be blocked
+    * As opposed to kernel threading where only the thread will be blocked
+  * Since that thread is blocked, we can't run the other threads since the process is run as blocked
+ 
+* In kernel threading, we implemented blocking by doing work that was ready
+  * If there are other threads to run, rather than loop, yield
+ 
+### Select()
+
+* Problem: if we call read at any moment() there will not be any data and it will not block (i.e. our user is idle)
+  * Is there some way we can ask the OS if we were to call read right now, would it block?
+    * Select() syscall does just that. It's non blocking and just tells us if there was a key to grab
+* When we are in the threading library, call select() to check if the data is ready
+  * if data is available, then read()
+* In a hybrid threading model, we would want to user kernel threading as the OS would not be able to have the capability for user threads
+
+## I/O bound vs CPU cound processes
+
+* With I/O bound processes
+  * We have a process that takes more time in the I/O rather than the CPU time
+  * Can do two I/O bound processes in the time of one
+  * Batch system does not make sense in this case
+* With CPU bound processes
+  * Process that the vast majority of execution length would take the CPU
+  * Interlace the CPU bound processes
+    * If they each take 1 second, and CPU time is .8, then we could get them done in 1.6 by interleaving
+      * Where we run instructions of one while the other one waits for I/O
+     
+## Slide set 2 summary
+
+* Kernel vs User threading
+  * User threading occurs in user space
+    * threading library gives user access to threading tools (called with normal functions)
+  * Kernel threading occurs in the kernel (duh)
+    * OS provides support for threading natively
+    * Done through system calls    
