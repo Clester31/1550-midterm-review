@@ -613,11 +613,30 @@
 
 1. FCFS
 
-![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/669a91c9-6d4c-4e68-ae6a-1bad59da4596)
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/e3e8340f-aec0-47ec-9a06-4088b52dbc20)
 
 * Throughput: 4 jobs / 26 secs = **2/13**
 * Average Turnaround Time:
-  *  
+  * P1 = 8 - 0 = 8
+  * P2 = 12 - 1 = 11
+  * P3 = 21 - 2 = 19
+  * P4 = 26 - 3 = 23
+  * 8 + 11 + 19 + 23 = **61/4**
+ 
+2. SJF
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/c3bb2791-1d4b-47b6-94b2-8e8eb63cf94b)
+
+* Throughput: 5 jobs / 16 secs = **5/16**
+* Average Turnaround Time:
+  * P1 = 7 - 3 = 4
+  * P2 = 16 - 1 = 15
+  * P3 = 9 - 4 = 5
+  * P4 = 6 - 0 = 6
+  * P5 = 12 - 2 = 10
+  * 4 + 15 + 5 + 6 + 10 = 40 / 5 = **8**
+
+
 
 
 
