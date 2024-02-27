@@ -1,4 +1,4 @@
-# Slide set 1 (Introduction to Operating Systems)
+# Slide set 1 (Introduction to Operating Systems - System Calls and Kernels)
 
 ## An OS is a piece of software that...
 
@@ -236,7 +236,7 @@
 
 ![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/feb17506-ed5f-40a0-9136-e7b1e4db7a76)
 
-# Slide Set 2 (Scheduling Part 1)
+# Slide Set 2 (Scheduling Life Cycle and Threading)
 
 ## Scheduling
 
@@ -250,7 +250,7 @@
 
 ### Multiprogramming
 
-* **Multiprogramming (AKA Multiprocessing/multitasking) is the ability to run multiple processes at the same time
+* **Multiprogramming** (AKA Multiprocessing/multitasking) is the ability to run multiple processes at the same time
 * The problem is easy if we have N processes and N processors (CPUs)
   * Just pick a process and assign it to a processor
 * Pigeonhole principle says if we have more processes than processors, we must assign two or more processes to the same CPU
@@ -452,9 +452,27 @@
      
 ## Slide set 2 summary
 
+* A program and it's associated state is a process
+* Scheduling is choosing among ready processes
+* In a batch system, we run a process to completion, an then move on to the next process
+* When a block occurs, we wait for input from the user to complete the data transfer to RAM
+  * In the meantime, run another ready process 
 * Kernel vs User threading
   * User threading occurs in user space
     * threading library gives user access to threading tools (called with normal functions)
   * Kernel threading occurs in the kernel (duh)
     * OS provides support for threading natively
-    * Done through system calls    
+    * Done through system calls
+* Blocking in a thread can block an entire process
+  * How to combat this? Use select()
+    * Non blocking system calls that checks if info would be read if we called read()
+* In a hybrid scenario, we use kernel threading because it requires kernel implementation
+  * Requires OS support since the scheduling algorithm must support threads
+  * Can still use the threading library, but it will slow down the system
+* I/O bound
+  * Spends most of its time blocking/waiting on I/O
+* CPU bound
+  * Spends most of its time running
+  * Vast majority is getting the most out of our CPU cycle           
+
+# Slide Set 3
