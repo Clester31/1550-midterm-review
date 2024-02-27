@@ -559,4 +559,65 @@
 
 * **Comparable processes get comparable services**
   * Comparable does not mean identical/equal 
-            
+
+### Batch Scheduling Algorithm 1 - First Come First Server
+
+* Simply: Jobs are run in the order they arrive (hence, the name)
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/317c046c-38dc-4ff2-90f3-10daf2928fe8)
+
+* Complete Throughput = # of jobs / time = 4 jobs / 16 units of time = **1/4**
+* Average Turnaround time:
+  * sum of (finish - arrival) / # of jobs
+  * A: 4 - 0 = 4
+  * B: 7 - 0 = 7
+  * C: 13 - 0 = 13
+  * D: 16 - 0 = 16
+  * 4 + 7 + 13 + 6 = 40/4 = **10**
+ 
+* Logistics
+  * If we have a queue in arrival order, we just simply remove the head which is an O(1) operation
+  * Overall, the runtime for FCFS is **O(N)**
+  * Fairness: FCFS seems reasonably fair, the first in line gets the resource first
+
+### Batch Scheduling Algorithm 2 - Shortest Job First
+
+* Simply: Jobs with the shortest runtime will be run first
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/3258193d-62ca-4678-a44d-e62e9879097a)
+
+* Throughput: # jobs / time = 4 jobs / 16 units of time = **1/4**
+* Average Turnaround Time:
+  * A: 10 - 0 = 10
+  * B: 3 - 0 = 3
+  * C: 16 - 0 = 16
+  * D: 6 - 0 = 6
+  * 10 + 3 + 16 + 6 = **35/4**
+ 
+* Logistics
+  * Proof by exchange, this algorithm is optimal and gives you the shortest turnaround time
+  * Asymptotic Analysis
+    * When a job arrives, we have a list of jobs that are ordered by execution length: O(N)
+    * Overall runtime: **O(n^2)**
+    * What we want is O(N lg N)
+      * How can we do that? HeapSort
+      * Insert: lg n
+      * Remove: constant
+    * Comparable? Fair?
+      * Most likely not - prone to starvation as longer jobs will stay in the back if shorter jobs keep arriving
+        * Also provably impossible (halting problem)
+          * How can we determing the runtime of a job?
+      * A slightly faster turnaround time isn't worth it for a slower and impossible alorithm
+     
+#### More FCFS and SJF practice problems
+
+1. FCFS
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/669a91c9-6d4c-4e68-ae6a-1bad59da4596)
+
+* Throughput: 4 jobs / 26 secs = **2/13**
+* Average Turnaround Time:
+  *  
+
+
+
