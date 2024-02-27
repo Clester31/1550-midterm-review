@@ -475,4 +475,88 @@
   * Spends most of its time running
   * Vast majority is getting the most out of our CPU cycle           
 
-# Slide Set 3
+# Slide Set 3 (Scheduling Metrics and Scheduling Algorithms)
+
+## When to schedule?
+
+* Scheduling boils down to choosing whihc of the ready processes is next
+* What event tells the kernel when to schedule?
+  * A process is created
+    * Now there is one more ready process to run
+  * A process exits
+    * The running process can no longer execute code until the requested data becomes available, pick something else ready
+  * A process blocks
+    * The running process can no longer execute code until the requested data becomes available, pick something ready
+  * A HW IO interrupt
+    * Data from a blocked process is now available, consider running something else
+  * Clock Interrupts
+    * The preemption timer warns us that the running process has used a lot of CPU time. Maybe pick something else
+   
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/e5a4ef62-9af4-4251-b161-d95b66a199cd)
+
+### Characterizing our workload
+
+* **Wall clock time** - How long it seems that a program takes to execute
+* **User time**: how long the user executes instructions on behalf of the process
+* **System time**: how long the OS was doing instructions on behalf of the process
+* In I/O bound and CPU bound processes, they will take the same amount of time (1 unit)
+* When we block, we use that time while waiting to run instructions in another process
+
+#### Motivating our Scheduler
+
+* Multiple I/O processes can be scheduled at the same time without increasing the amount of time necessary to run them
+* Computational bursts before the process blocks might be so long, that the illusion of animation will break
+* If the program doesn't naturally produce an event, we preempt via a preemption timer that runs an interrupt after a certain time
+  * We have preemption events that are split up section of the CPU bound time to run CPU bursts
+    * In a batch system, this means that our process is slower, but it retains the illusion of doing two things at once
+* Every preemption interrupt is overhead as it is needed to maintain the illusion of two things running at the same time
+* How are msot processes I/O bound?
+  * Although our processes are interractive, our users are much slower compared to the processor
+    * Most of the programs we use are I/O bound because we interact with them
+* How do we turn a CPU bound process into an I/O bound process?
+  * The only instance where something will take half time is if something is entirely CPU bound, since it only has to worry about computations
+  * When the CPU gets faster, the bursts of computations keep getting smaller until the program becomes virtually entirely I/O bound
+  * Having more transistors translates into faster processes bceuase the CPU components are closer physically, reducing the time it takes for instructions to reach their destination
+  * More complicated CPUs allow for different algorithm implementations, leading to better performance
+ 
+#### Three-Level Scheduling
+
+![image](https://github.com/Clester31/1550-midterm-review/assets/91839534/7e312d71-9c80-4f20-bd6c-04a1c4f5e8fc)
+
+* What else can we consider scheduling?
+  * CPU scheduler is the only one that can be deemed positive (picks what process to run)
+  * Negative scheduling is when we deny something the CPU (don't give it RAM)
+    * Admission Scheduler
+      * Ask it if we should load a process into RAM
+      * If it says no (not in RAM or not enough RAM), then the CPU scheduler cannot pick it
+      * Or, our workload added into RAM will not be better off with more work (no performance gain)
+    * Memory scheduler
+      * Evict the parts we aren't using to free up RAM
+      * A place where we take a process with partial execution in RAM and temporarily hold it somewhere else (like a disk_    
+
+### IO and CPU bound processes
+
+* Multiple IO bound processes can be scheduled at the same time without increasing the amount of time necessary to run them
+* I/O bound processes are very common
+  * Interactive programs
+* I/O bound processes will use overall have less total CPU usage since most of the time spent is waiting on I/O with shorter CPU bursts in between them
+  * Compare than to CPU bound processes, which use more of the CPU as there are less frequent, but longer CPU bursts
+    * And also less time doing I/O waits
+   
+## Scheduling Metrics
+
+* Quantitative Metrics
+  * **Throughput** - Number of jobs completed per unit of time
+  * **Turnaround Time** - The time between a job being completetd and submitted
+    * Includes time its waiting to be scheduled
+  * **Average Turnraound Time** - The average turnaround times of a workload
+ 
+* Computer Science Metrics
+  * **Asymptotic Runtime** - Big O for the scheduling algorithm/data structure maintenance
+  * **Engineering Difficulty** - How hard it is to get a particular algoritnm right
+ 
+### Fairness
+
+* **Comparable processes get comparable services**
+  * Comparable does not mean identical/equal 
+            
